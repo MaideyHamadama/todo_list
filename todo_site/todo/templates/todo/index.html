@@ -51,6 +51,22 @@
         </center>
 
         <div class="row">
+            <div class="col-md-12">
+                <h3>Filter by Tag:</h3>
+                <form method="GET" action="">
+                    <select name="tag" onchange="this.form.submit()" class="form-control">
+                        <option value="">All Tags</option>
+                        {% for tag in tags %}
+                            <option value="{{ tag.name }}" {% if request.GET.tag == tag.name %}selected{% endif %}>
+                                {{ tag.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+        
+        <div class="row">
             <div class="col-md-8">
             {% for i in list %}
                 <div class="card">
@@ -59,6 +75,13 @@
                     {{i.date}}
                     <hr/>
                     {{i.details}}
+                    <br />
+                    <b>Tags : </b>
+                    {% for tag in i.tags.all %}
+                    <span class="label label-primary">{{ tag.name }}</span>
+                    {% empty %}
+                    <span>No Tags</span>
+                    {% endfor %}
                     <br />
                     <br />
                     <form action="/del/{{i.id}}" method="POST" style=" padding-right: 4%; padding-bottom: 3%;">
@@ -73,7 +96,7 @@
                 <div class="submit_form">
                     <form method="POST">
                         {% csrf_token %}
-                        {{forms}}
+                        {{form}}
                         <center>
                         <input type="submit" class="btn btn-default" value="submit" />
                     </center>
