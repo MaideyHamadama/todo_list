@@ -7,6 +7,8 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script>
+
 
         <!--style-->
         <style>
@@ -96,7 +98,8 @@
                 <div class="submit_form">
                     <form method="POST">
                         {% csrf_token %}
-                        {{form}}
+                        {{form.title.label_tag}} {{form.title}}
+                        {{form.details.label_tag}} {{form.details}}
                         <center>
                         <input type="submit" class="btn btn-default" value="submit" />
                     </center>
@@ -104,5 +107,20 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            ClassicEditor
+            .create(document.querySelector('#id_details')) //Target the 'details' field
+            .catch(error => {
+                console.error(error);})
+
+            document.querySelector('form').addEventListener('submit', function(event){
+                const editorData = document.querySelector('#id_details');
+                if(editorData){
+                    editorData.value = ClassicEditor.instances.id_details.getData();//Sync editor content back to input
+                }
+            });
+            
+        </script>
     </body>
 </html>
