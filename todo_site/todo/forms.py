@@ -2,18 +2,26 @@ from django import forms
 from .models import Todo,Tag
 
 class TodoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Exclude "complete" tag from the tags queryset hence don't appears in the checkbox options
+        self.fields['tags'].queryset = Tag.objects.exclude(name="Completed")
+
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         widget = forms.CheckboxSelectMultiple,
         required = False
     )
-    
+    # Explicitly set the details field widget without required attribute
+    details = forms.CharField(
+        widget=forms.Textarea(),
+        required = False
+    )
+
     class Meta:
         model = Todo
         fields = "__all__"
     
-    # Make the field detail to be optional
-    details = forms.CharField(widget=forms.Textarea(attrs={"required": False}))
     
     def clean_details(self):
         details = self.cleaned_data.get('details')

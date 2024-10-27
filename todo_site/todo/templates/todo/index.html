@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-        <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script>
+        <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
 
 
         <!--style-->
@@ -76,7 +76,7 @@
                     <hr/>
                     {{i.date}}
                     <hr/>
-                    {{i.details}}
+                    {{i.details|safe}}
                     <br />
                     <b>Tags : </b>
                     {% for tag in i.tags.all %}
@@ -98,11 +98,10 @@
                 <div class="submit_form">
                     <form method="POST">
                         {% csrf_token %}
-                        {{form.title.label_tag}} {{form.title}}
-                        {{form.details.label_tag}} {{form.details}}
+                        {{form}}
                         <center>
-                        <input type="submit" class="btn btn-default" value="submit" />
-                    </center>
+                            <input type="submit" class="btn btn-default" value="submit" />
+                        </center>
                     </form>
                 </div>
             </div>
@@ -112,15 +111,16 @@
             ClassicEditor
             .create(document.querySelector('#id_details')) //Target the 'details' field
             .catch(error => {
-                console.error(error);})
+                console.error(error);
+            });
 
             document.querySelector('form').addEventListener('submit', function(event){
-                const editorData = document.querySelector('#id_details');
-                if(editorData){
-                    editorData.value = ClassicEditor.instances.id_details.getData();//Sync editor content back to input
+                //Ensure CKEditor content syncs back to the 'details' textarea
+                if (ClassicEditor.instances.id_details){
+                    const editorData = ClassicEditor.instances.id_details.getData();
+                    document.getElementById('id_details').value = editorData;
                 }
             });
-            
         </script>
     </body>
 </html>

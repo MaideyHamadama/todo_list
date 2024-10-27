@@ -15,3 +15,9 @@ We implemented the rich text feature that allows the user to better format the d
 *Before implementation*
 
 ![Before implementing rich text feature](resources/img1.png)
+
+*After implementation*
+
+![After implementing rich text feature](resources/img2.png)
+
+![After implementing rich text feature](resources/img3.png)
