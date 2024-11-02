@@ -28,6 +28,11 @@ class TodoForm(forms.ModelForm):
         }),
         required=False
     )
+    recurrence_interval = forms.ChoiceField(
+        choices=[("", "None"), ("daily","Daily"), ("weekly", "Weekly"), ("monthly", "Monthly")],
+        required=False,
+        label="Repeat"
+    )
     
     class Meta:
         model = Todo
