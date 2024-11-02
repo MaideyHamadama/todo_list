@@ -22,11 +22,16 @@ class TodoForm(forms.ModelForm):
         widget=forms.Select,
         required=True
     )
-
+    due_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={
+            'type':'datetime-local'
+        }),
+        required=False
+    )
+    
     class Meta:
         model = Todo
         fields = "__all__"
-    
     
     def clean_details(self):
         details = self.cleaned_data.get('details')

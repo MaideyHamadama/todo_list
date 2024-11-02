@@ -13,26 +13,105 @@
         <!--style-->
         <style>
             .card {
-            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.5),
-                        0 6px 20px 0 rgba(0,0,0,0.39);
-            background: lightpink;
-            margin-bottom : 5%;
-            border-radius: 25px;
-            padding : 2%;
-            overflow: auto;
-            resize: both;
-            text-overflow: ellipsis;
+                background-color: #f9f9f9; /* Light grey background for subtle contrast */
+                border: 1px solid #ddd;    /* Light border for definition */
+                border-radius: 8px;        /* Rounded corners for a soft look */
+                padding: 20px;             /* Padding for comfortable spacing */
+                margin-bottom: 15px;       /* Space between cards */
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for a slight lift */
+                transition: box-shadow 0.3s ease, transform 0.3s ease; /* Smooth animation for hover */
             }
-            .card:hover{
-                background: lightblue;
+
+            .card:hover {
+                box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow on hover */
+                transform: translateY(-4px); /* Subtle lift effect on hover */
+                background-color: #f3f3f3;   /* Slightly darker background on hover */
             }
-            .submit_form{
-                text-align: center;
-                padding: 3%;
-                background: pink;
-                border-radius: 25px;
-                box-shadow: 0 4px 8px 0 rgba(0,0,0,0.4),
-                            0 6px 20px 0 rgba(0,0,0,0.36);
+
+            /* Optional: Centered text styling */
+            .card-title {
+                font-size: 1.2em;
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+            .card-content {
+                color: #555; /* Softer color for the text */
+                font-size: 1em;
+                line-height: 1.6;
+            }
+
+            .submit_form {
+                background-color: #f9f9f9;          /* Soft background color */
+                border: 1px solid #ddd;             /* Light border for definition */
+                border-radius: 8px;                 /* Soft rounded corners */
+                padding: 20px;                      /* Padding for spacing inside the form */
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for slight elevation */
+                margin-top: 15px;                   /* Space above the form */
+            }
+
+            .submit_form h3 {
+                font-size: 1.4em;                   /* Slightly larger title text */
+                color: #333;                        /* Darker color for visibility */
+                text-align: center;                 /* Centered title */
+                margin-bottom: 15px;                /* Space below the title */
+            }
+
+            .submit_form label {
+                display: block;                     /* Ensures labels are above fields */
+                margin-top: 10px;                   /* Space above each label */
+                color: #555;                        /* Softer color for labels */
+                font-weight: 600;                   /* Slightly bold for visibility */
+            }
+
+            .submit_form input[type="text"],
+            .submit_form input[type="date"],
+            .submit_form select,
+            .submit_form textarea {
+                width: 100%;                        /* Full width for consistency */
+                padding: 10px;                      /* Comfortable padding inside fields */
+                border: 1px solid #ccc;             /* Light border for input fields */
+                border-radius: 4px;                 /* Rounded corners */
+                margin-bottom: 15px;                /* Space below each input */
+                font-size: 1em;                     /* Standard font size */
+                color: #333;                        /* Darker color for input text */
+                box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle inner shadow */
+            }
+
+            .submit_form input[type="submit"] {
+                background-color: #4CAF50;          /* Button color */
+                color: white;                       /* Text color for contrast */
+                padding: 10px 20px;                 /* Comfortable button padding */
+                border: none;                       /* Removes border */
+                border-radius: 4px;                 /* Rounded corners for button */
+                font-size: 1em;                     /* Standard font size */
+                font-weight: bold;                  /* Bold for emphasis */
+                cursor: pointer;                    /* Pointer cursor for interaction */
+                transition: background-color 0.3s ease; /* Smooth transition on hover */
+            }
+
+            .submit_form input[type="submit"]:hover {
+                background-color: #45a049;          /* Darker shade on hover */
+            }
+            
+            /* Additional styles for due date highlighting */
+            .due-soon {
+                background-color: #fff3cd; /* Soft yellow for tasks due soon */
+            }
+            .overdue {
+                background-color: #ffcccc; /* Soft red for overdue tasks */
+            }
+
+            /* Priority-specific border styles */
+            .priority-high {
+                border-left: 5px solid red;
+            }
+            .priority-medium {
+                border-left: 5px solid orange;
+            }
+            .priority-low {
+                border-left: 5px solid green;
             }
         </style>
 
@@ -71,16 +150,20 @@
         <div class="row" style="padding-top: 10px;">
             <div class="col-md-8">
             {% for i in list %}
-                <div class="card" style="
-                {% if i.priority == 3 %} border-left: 5px solid red;
-                {% elif i.priority == 2 %} border-left: 5px solid orange;
-                {% else %} border-left: 5px solid green;
+                <div class="card
+                {% if i.priority == 3 %} priority-high
+                {% elif i.priority == 2 %} priority-medium
+                {% else %} priority-medium
+                {% endif %}
+                {% if i.is_overdue %} overdue
+                {% elif i.is_due_soon %} due-soon
                 {% endif %}
                 ">
                     <center><b>{{i.title}}</b></center>
                     <hr/>
-                    {{i.date}}
-                    <hr/>
+                    <p>Due Date : {{ i.due_date|date:"Y-m-d H:i"}}</p>
+                    <p>Priority : <b>{{i.get_priority_display}}</b></p>
+                    <center><b>Details</b></center>
                     {{i.details|safe}}
                     <br />
                     <b>Tags : </b>
@@ -104,6 +187,7 @@
                     <form method="POST">
                         {% csrf_token %}
                         {{form}}
+                        <br>
                         <center>
                             <input type="submit" class="btn btn-default" value="submit" />
                         </center>
