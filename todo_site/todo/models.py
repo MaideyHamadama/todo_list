@@ -10,10 +10,18 @@ class Tag(models.Model):
         return self.name
     
 class Todo(models.Model):
+    PRIORITY_CHOICES = [
+        (3, 'High'),
+        (2, 'Medium'),
+        (1, 'Low')
+    ]
+    
+    
     title = models.CharField(max_length=100)
     details = models.TextField()
     date = models.DateTimeField(default=timezone.now)
     tags = models.ManyToManyField(Tag, related_name='todos', blank=True)
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
     
     def __str__(self):
-        return self.title
+        return f"{self.title} ({self.get_priority_display()})"

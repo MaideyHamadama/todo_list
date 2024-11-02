@@ -17,6 +17,11 @@ class TodoForm(forms.ModelForm):
         widget=forms.Textarea(),
         required = False
     )
+    priority = forms.ChoiceField(
+        choices=Todo.PRIORITY_CHOICES,
+        widget=forms.Select,
+        required=True
+    )
 
     class Meta:
         model = Todo

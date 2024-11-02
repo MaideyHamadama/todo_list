@@ -11,12 +11,12 @@ def index(request):
     # Get the selected tag from the query parameters, if any
     selected_tag = request.GET.get('tag', None)
     
-    # Filter tasks by the selected tag if present
+    # Filter tasks by the selected tag if present and ordering by priority then date
     if selected_tag:
-        item_list = Todo.objects.filter(tags__name=selected_tag).order_by('-date')
+        item_list = Todo.objects.filter(tags__name=selected_tag).order_by('-priority', '-date')
     else:
-        item_list = Todo.objects.order_by('-date')
-        
+        item_list = Todo.objects.order_by('-priority', '-date')
+    
     # Handle form submission
     if request.method == "POST":
         form = TodoForm(request.POST)

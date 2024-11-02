@@ -71,7 +71,12 @@
         <div class="row" style="padding-top: 10px;">
             <div class="col-md-8">
             {% for i in list %}
-                <div class="card">
+                <div class="card" style="
+                {% if i.priority == 3 %} border-left: 5px solid red;
+                {% elif i.priority == 2 %} border-left: 5px solid orange;
+                {% else %} border-left: 5px solid green;
+                {% endif %}
+                ">
                     <center><b>{{i.title}}</b></center>
                     <hr/>
                     {{i.date}}
