@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -11,6 +12,7 @@ class Tag(models.Model):
         return self.name
     
 class Todo(models.Model):
+    today = datetime.today().date() # Get today's date as datetime.date
     PRIORITY_CHOICES = [
         (3, 'High'),
         (2, 'Medium'),
@@ -24,7 +26,7 @@ class Todo(models.Model):
     date = models.DateTimeField(default=timezone.now)
     tags = models.ManyToManyField(Tag, related_name='todos', blank=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
-    due_date = models.DateTimeField(null=True, blank=True) # Optional due date
+    due_date = models.DateField(null=True, blank=True) # Optional due date
     is_recurring = models.BooleanField(default=False)
     recurrence_interval = models.CharField(
         max_length=20,
@@ -33,6 +35,16 @@ class Todo(models.Model):
         null=True
     )
     
+    def clean(self):
+        # If the task has been assigned a recurrence interval but not set as recurring task
+        if self.recurrence_interval and not self.is_recurring:
+            raise ValidationError("If a task has been set a recurrence interval it must be set to recurring")
+        
+        if self.is_recurring and not self.recurrence_interval:
+            raise ValidationError("If a task is recurring, a recurrence interval must be set.")
+        
+        super().clean()
+        
     def save(self, *args, **kwargs):
         # Set the due_date automatically if the task is recurring
         if self.is_recurring and not self.due_date:
@@ -52,10 +64,10 @@ class Todo(models.Model):
     def __str__(self):
         return f"{self.title} ({self.get_priority_display()})"
     
-    def is_due_soon(self):
+    def is_due_soon(self, today):
         """ Check if a task is due within the next day. """
-        return self.due_date and self.due_date <= timezone.now() + timedelta(days=1)
+        return self.due_date and self.due_date <=  today + timedelta(days=1)
     
-    def is_overdue(self):
+    def is_overdue(self, today):
         """ Check if a task is overdue. """
-        return self.due_date and self.due_date < timezone.now()
+        return self.due_date and self.due_date < today

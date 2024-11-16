@@ -1,5 +1,6 @@
 from django import forms
 from .models import Todo,Tag
+from django.forms.widgets import DateInput
 
 class TodoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -22,9 +23,9 @@ class TodoForm(forms.ModelForm):
         widget=forms.Select,
         required=True
     )
-    due_date = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={
-            'type':'datetime-local'
+    due_date = forms.DateField(
+        widget=DateInput(attrs={
+            'type':'date'
         }),
         required=False
     )

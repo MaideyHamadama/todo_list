@@ -162,7 +162,7 @@
                 ">
                     <center><b>{{i.title}}</b></center>
                     <hr/>
-                    <p>Due Date : {{ i.due_date|date:"Y-m-d H:i"}}</p>
+                    <p>Due Date : {{ i.due_date|date:"Y-m-d"}}</p>
                     <p>Priority : <b>{{i.get_priority_display}}</b></p>
                     {% if i.is_recurring %}
                     <span class="recurrence-info">Repeats: {{ i.get_recurrence_interval_display }}</span>
