@@ -43,9 +43,9 @@ def index(request):
     
     # Filter tasks by the selected tag if present and ordering by priority then date
     if selected_tag:
-        item_list = Todo.objects.filter(tags__name=selected_tag).order_by('-priority', '-date')
+        item_list = Todo.objects.filter(tags__name=selected_tag).order_by('-priority', 'due_date', '-date')
     else:
-        item_list = Todo.objects.order_by('-priority', '-date')
+        item_list = Todo.objects.order_by('-priority', 'due_date', '-date')
     
     # Handle form submission
     if request.method == "POST":

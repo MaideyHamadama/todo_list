@@ -11,7 +11,6 @@ class Tag(models.Model):
         return self.name
     
 class Todo(models.Model):
-    today = datetime.today().date() # Get today's date as datetime.date
     PRIORITY_CHOICES = [
         (3, 'High'),
         (2, 'Medium'),
@@ -53,10 +52,12 @@ class Todo(models.Model):
     def __str__(self):
         return f"{self.title} ({self.get_priority_display()})"
     
-    def is_due_soon(self, today):
+    def is_due_soon(self):
         """ Check if a task is due within the next day. """
+        today = datetime.today().date() # Get today's date as datetime.date
         return self.due_date and self.due_date <=  today + timedelta(days=1)
     
-    def is_overdue(self, today):
+    def is_overdue(self):
         """ Check if a task is overdue. """
-        return self.due_date and self.due_date < today
+        today = datetime.today().date() # Get today's date as datetime.date
+        return self.due_date and self.due_date <= today
