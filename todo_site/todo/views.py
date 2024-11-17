@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from django.shortcuts import render,redirect
 from django.contrib import messages
+from dateutil.relativedelta import relativedelta
 
 # import todo form and models
 from .forms import TodoForm
@@ -9,48 +10,31 @@ from .models import Todo,Tag
 # Create your views here.
 
 def create_recurring_tasks(task, start_date, frequency):
+    # Frequency delta: weekly = 7 days, monthly = ~30 days
     if frequency == 'daily':
-        while start_date < task.due_date:
-            start_date += timedelta(days=1)
-            new_task = Todo.objects.create(
-                title = task.title,
-                details = task.details,
-                due_date = start_date,
-                priority = task.priority,
-                is_recurring=False,
-                recurrence_interval=None
-            )
-            new_task.save() # Save the new task before assigning tags
-            new_task.tags.set(task.tags.all())
-            new_task.save()
+        frequency_delta = timedelta(days=1)
     elif frequency == 'weekly':
-        while start_date < task.due_date:
-            start_date += timedelta(weeks=1)
-            new_task = Todo.objects.create(
-                title = task.title,
-                details = task.details,
-                due_date = start_date,
-                is_recurring=False,
-                recurrence_interval=None,
-                priority = task.priority
-            )
-            new_task.save()
-            new_task.tags.set(task.tags.all())
-            new_task.save()
+        frequency_delta = timedelta(days=7)
     elif frequency == 'monthly':
-        while start_date < task.due_date:
-            start_date = start_date.replace(month=start_date.month % 12 + 1)
-            new_task = Todo.objects.create(
-                title = task.title,
-                details = task.details,
-                due_date = start_date,
-                is_recurring=False,
-                recurrence_interval=None,
-                priority = task.priority
-            )
-            new_task.save()
-            new_task.tags.set(task.tags.all())
-            new_task.save()
+        frequency_delta = relativedelta(months=1)
+        
+    current_date = start_date   
+    while current_date + frequency_delta <= task.due_date:
+        current_date += frequency_delta
+        # Stop if the next recurrence exceeds the due date
+        if current_date >= task.due_date:
+            break
+        new_task = Todo.objects.create(
+            title = task.title,
+            details = task.details,
+            due_date = current_date,
+            priority = task.priority,
+            is_recurring=False,
+            recurrence_interval=None
+        )
+        new_task.save() # Save the new task before assigning tags
+        new_task.tags.set(task.tags.all())
+        new_task.save()
     return None
         
 def index(request):
@@ -71,17 +55,13 @@ def index(request):
             # If the task is recurring, handle the recurrence creation logic
             is_recurring = task.is_recurring
             recurrence_interval = task.recurrence_interval
-            due_date = task.due_date
-            
-            if is_recurring and due_date:
+            if is_recurring and request.POST['due_date']:
                 # Calculate the recurrences based on interval and due date
                 start_date = datetime.now().date()
                 task.save()
                 
                 # Handle task creation based on frequency
                 create_recurring_tasks(task, start_date, recurrence_interval)
-                if recurrence_interval == 'daily':
-                    task.delete() # Delete the original task to avoid the last recurrent task and the original task having the same date in the database
             else:
                 task.save()  
                 

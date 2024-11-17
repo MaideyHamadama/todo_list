@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta, datetime
-from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -34,17 +33,7 @@ class Todo(models.Model):
         blank=True,
         null=True
     )
-    
-    def clean(self):
-        # If the task has been assigned a recurrence interval but not set as recurring task
-        if self.recurrence_interval and not self.is_recurring:
-            raise ValidationError("If a task has been set a recurrence interval it must be set to recurring")
-        
-        if self.is_recurring and not self.recurrence_interval:
-            raise ValidationError("If a task is recurring, a recurrence interval must be set.")
-        
-        super().clean()
-        
+            
     def save(self, *args, **kwargs):
         # Set the due_date automatically if the task is recurring
         if self.is_recurring and not self.due_date:
