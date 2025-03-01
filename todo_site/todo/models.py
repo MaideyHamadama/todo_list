@@ -20,7 +20,7 @@ class Todo(models.Model):
     RECURRENCE_INTERVAL_CHOICES = [("daily","Daily"), ("weekly", "Weekly"), ("monthly", "Monthly")]
     
     title = models.CharField(max_length=100)
-    details = models.TextField()
+    details = models.TextField(blank=True, null=True)
     date = models.DateTimeField(default=timezone.now)
     tags = models.ManyToManyField(Tag, related_name='todos', blank=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
@@ -33,6 +33,9 @@ class Todo(models.Model):
         null=True
     )
             
+    class Meta:
+        unique_together = ('title', 'details', 'due_date', 'priority')
+        
     def save(self, *args, **kwargs):
         # Set the due_date automatically if the task is recurring
         if self.is_recurring and not self.due_date:

@@ -65,6 +65,9 @@ class TodoForm(forms.ModelForm):
     
     def clean(self):
         cleaned_data = super().clean()
+        title = cleaned_data.get("title")
+        details = cleaned_data.get("details")
+        priority = cleaned_data.get("priority")
         due_date = cleaned_data.get('due_date')
         recurrence_interval = cleaned_data.get('recurrence_interval')
         is_recurring = cleaned_data.get('is_recurring')
@@ -76,4 +79,8 @@ class TodoForm(forms.ModelForm):
                 # Validation for monthly recurrence
             if recurrence_interval == 'monthly' and due_date <= today + timedelta(days=30):
                 raise forms.ValidationError("The due date must be at least a month from today for monthly recurrence.")
+            
+        # Check if a similar task already exists
+        if Todo.objects.filter(title=title, details=details, due_date=due_date, priority=priority):
+            raise forms.ValidationError("A task with the same details already exists!")
         return cleaned_data

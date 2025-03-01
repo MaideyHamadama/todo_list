@@ -219,12 +219,35 @@
             <div class="col-md-1"> </div>
             <div class="col-md-3" >
                 <div class="submit_form">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <ul>
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
                     <form method="POST">
                         {% csrf_token %}
-                        {{form}}
-                        <br>
+
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+
+                                {% if field.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in field.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
                         <center>
-                            <input type="submit" class="btn btn-default" value="submit" />
+                            <input type="submit" class="btn btn-primary" value="submit" />
                         </center>
                     </form>
                 </div>
