@@ -132,30 +132,36 @@
             <hr />
         </center>
 
-        <form method="GET" action="" class="form-inline mb-3">
+        <form method="GET" action="{% url 'todo' %}" class="form-inline mb-3">
             <!-- Search Bar -->
             <input type="text" name="search" placeholder="Search tasks" class="form-control mr-2" value="{{ request.GET.search }}">
         
             <!-- Filter by Priority -->
             <select name="priority" class="form-control mr-2">
                 <option value="">All Priorities</option>
-                <option value="Low" {% if request.GET.priority == "Low" %}selected{% endif %}>Low</option>
-                <option value="Medium" {% if request.GET.priority == "Medium" %}selected{% endif %}>Medium</option>
-                <option value="High" {% if request.GET.priority == "High" %}selected{% endif %}>High</option>
+                <option value=1 {% if request.GET.priority == "Low" %}selected{% endif %}>Low</option>
+                <option value=2 {% if request.GET.priority == "Medium" %}selected{% endif %}>Medium</option>
+                <option value=3 {% if request.GET.priority == "High" %}selected{% endif %}>High</option>
             </select>
         
             <!-- Sort Options -->
             <select name="sort" class="form-control mr-2">
                 <option value="">Sort By</option>
-                <option value="title" {% if request.GET.sort == "title" %}selected{% endif %}>Title</option>
-                <option value="-due_date" {% if request.GET.sort == "-due_date" %}selected{% endif %}>Due Date (Descending)</option>
-                <option value="due_date" {% if request.GET.sort == "due_date" %}selected{% endif %}>Due Date (Ascending)</option>
-                <option value="priority" {% if request.GET.sort == "priority" %}selected{% endif %}>Priority</option>
+                <option value="title" {% if request.GET.sort == "title" %}selected{% endif %}>Title (A-Z)</option>
+                <option value="-title" {% if request.GET.sort == "-title" %}selected{% endif %}>Title (Z-A)</option>
+                <option value="due_date" {% if request.GET.sort == "due_date" %}selected{% endif %}>Due Date (Oldest First)</option>
+                <option value="-due_date" {% if request.GET.sort == "-due_date" %}selected{% endif %}>Due Date (Newest First)</option>
+                <option value="priority" {% if request.GET.sort == "priority" %}selected{% endif %}>Priority (Low-High)</option>
+                <option value="-priority" {% if request.GET.sort == "-priority" %}selected{% endif %}>Priority (High-Low)</option>
             </select>
         
             <!-- Submit Button -->
             <button type="submit" class="btn btn-primary">Apply</button>
+
+            <!-- Reset filter button -->
+            <a href="{% url 'todo' %}" class="btn btn-secondary">Reset</a>
         </form>
+
         
         <div class="row">
             <div class="col-md-12">
@@ -197,9 +203,9 @@
                     <br />
                     <b>Tags : </b>
                     {% for tag in i.tags.all %}
-                    <span class="label label-primary">{{ tag.name }}</span>
-                    {% empty %}
-                    <span>No Tags</span>
+                        <span class="label label-primary">{{ tag.name }}</span>
+                        {% empty %}
+                        <span>No Tags</span>
                     {% endfor %}
                     <br />
                     <br />

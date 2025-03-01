@@ -20,4 +20,12 @@ We implemented the rich text feature that allows the user to better format the d
 
 ![After implementing rich text feature](resources/img2.png)
 
-![After implementing rich text feature](resources/img3.png)
+### Sort, Filter and Search Feature
+
+We implemented the sort, filter and search features that allows the user to apply these operations on the todo list elements
+
+*Before implementation*
+![Before implementing sort_filter_search feature](resources/img3.png)
+
+*After implementation*
+![After implementing sort_filter_search feature](resources/img4.png)
