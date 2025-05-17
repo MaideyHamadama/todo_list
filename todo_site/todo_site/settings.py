@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_celery_beat'
+    'background_task'
 ]
 
 MIDDLEWARE = [
@@ -134,9 +134,3 @@ EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = '7435d61031d842'  # Your email
 EMAIL_HOST_PASSWORD = '3e16cb9b9b7d7e'  # App password (not your actual password)
-
-
-# Celery configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0' # Use Redis as broker
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
