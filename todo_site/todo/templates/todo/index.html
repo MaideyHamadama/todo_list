@@ -142,7 +142,7 @@
                             {% for notif in notifications %}
                                 <div class="dropdown-item">
                                     <strong>{{ notif.message }}</strong><br>
-                                    <small class="text-muted">created at : {{ notif.created_at|date:"d M Y, H:i" }} <a href="#" class="mark-as-read text-success small" data-id="{{notif.id}}">Mark as read</a></small>
+                                    <a href="#" class="mark-as-read text-success small" data-id="{{notif.id}}">Mark as read</a>
                                 </div>
                                 {% if not forloop.last %}
                                     <div class="dropdown-divider"></div>
