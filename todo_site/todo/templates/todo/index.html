@@ -118,7 +118,6 @@
 
     </head>
     <body class="container-fluid">
-
         {% if messages %}
         {% for message in messages %}
         <div class="alert alert-info">
@@ -126,12 +125,36 @@
         </div>
         {% endfor %}
         {% endif %}
-
-        <center class="row">
-            <h1><i>__TODO LIST__</i></h1>
-            <hr />
-        </center>
-
+        <div class="row align-items-center">
+            <div class="col-md-9 text-center">
+                <h1><i>__TODO LIST__</i></h1>
+            </div>
+            <div class="col-md-3 text-right">
+                <div class="dropdown" style="margin-top: 20px;">
+                    <button class="btn btn-warning dropdown-toggle" type="button" id="notifDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        🔔 Notifications 
+                        {% if notifications|length > 0 %}
+                            <span class="badge badge-light">{{ notifications|length }}</span>
+                        {% endif %}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right p-2" aria-labelledby="notifDropdown" style="max-height: 300px; overflow-y: auto;">
+                        {% if notifications %}
+                            {% for notif in notifications %}
+                                <div class="dropdown-item">
+                                    <strong>{{ notif.message }}</strong><br>
+                                    <small class="text-muted">created at : {{ notif.created_at|date:"d M Y, H:i" }} <a href="#" class="mark-as-read text-success small" data-id="{{notif.id}}">Mark as read</a></small>
+                                </div>
+                                {% if not forloop.last %}
+                                    <div class="dropdown-divider"></div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <span class="dropdown-item text-muted">No notifications</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
         <form method="GET" action="{% url 'todo' %}" class="form-inline mb-3">
             <!-- Search Bar -->
             <input type="text" name="search" placeholder="Search tasks" class="form-control mr-2" value="{{ request.GET.search }}">
@@ -161,8 +184,6 @@
             <!-- Reset filter button -->
             <a href="{% url 'todo' %}" class="btn btn-secondary">Reset</a>
         </form>
-
-        
         <div class="row">
             <div class="col-md-12">
                 <h3>Filter by Tag:</h3>
@@ -178,7 +199,6 @@
                 </form>
             </div>
         </div>
-        
         <div class="row" style="padding-top: 10px;">
             <div class="col-md-8">
             {% for i in list %}
@@ -230,7 +250,6 @@
                     {% endif %}
                     <form method="POST">
                         {% csrf_token %}
-
                         {% for field in form %}
                             <div class="mb-3">
                                 <label class="form-label">{{ field.label }}</label>
@@ -245,7 +264,6 @@
                                 {% endif %}
                             </div>
                         {% endfor %}
-
                         <center>
                             <input type="submit" class="btn btn-primary" value="submit" />
                         </center>
@@ -253,7 +271,6 @@
                 </div>
             </div>
         </div>
-
         <script>
             ClassicEditor
             .create(document.querySelector('#id_details')) //Target the 'details' field
@@ -267,6 +284,38 @@
                     const editorData = ClassicEditor.instances.id_details.getData();
                     document.getElementById('id_details').value = editorData;
                 }
+            });
+
+            document.addEventListener('DOMContentLoaded', function(){
+                const readLinks = document.querySelectorAll('.mark-as-read');
+                readLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const notifId = this.getAttribute('data-id');
+
+                    fetch("{% url 'ajax_mark_as_read' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: `id=${notifId}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                // Remove notification visually
+                                const notifElem = document.getElementById(`notif-${notifId}`);
+                                notifElem.remove();
+
+                                // Optionally update the badge count
+                                const badge = document.getElementById("notif-count");
+                                const newCount = parseInt(badge.textContent) - 1;
+                                badge.textContent = newCount > 0 ? newCount : '';
+                            }
+                        });
+                    });
+                });
             });
         </script>
     </body>

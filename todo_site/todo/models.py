@@ -64,3 +64,13 @@ class Todo(models.Model):
         """ Check if a task is overdue. """
         today = datetime.today().date() # Get today's date as datetime.date
         return self.due_date and self.due_date <= today
+    
+class Notification(models.Model):
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    task = models.ForeignKey('Todo', on_delete=models.CASCADE, null=True, blank=True, related_name='notifications')
+    
+    def __str__(self):
+        return f"Notification: {self.message[:20]}... - {'Read' if self.is_read else 'Unread'}"
+    

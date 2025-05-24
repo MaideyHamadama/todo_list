@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from django.utils.timezone import now, timedelta, localtime, make_aware, datetime
-from todo.models import Todo
+from todo.models import Todo, Notification
 from background_task import background
 
 @background(schedule=60) # runs in 60 seconds from now unless rescheduled
@@ -22,6 +22,11 @@ def send_due_soon_email(task_id):
             from_email='noreply@yourapp.com',
             recipient_list=[recipient_email],  # Replace with user's email
             fail_silently=False,
+        )
+        # Create a notification after sending the mail
+        Notification.objects.create(
+            message=f"Reminder: Task '{task.title}' is due on {task.due_date.strftime('%d %b %Y')}",
+            task=task,
         )
         # Reschedule the task for the next day
         send_due_soon_email(task_id, schedule=now() + timedelta(days=1))

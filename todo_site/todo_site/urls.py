@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     ### home page ###
     path('', views.index, name='todo'),
-    path('del/<str:item_id>', views.remove, name='del')
+    path('del/<str:item_id>', views.remove, name='del'),
+    path('ajax/mark_as_read/', views.ajax_mark_as_read, name='ajax_mark_as_read')
 ]

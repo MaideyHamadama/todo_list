@@ -1,13 +1,16 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q # Used to search simulataneously on multiple fields of a table in the database/model
 from django.utils.timezone import timedelta, now
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
 # import todo form and models
 from .forms import TodoForm
-from .models import Todo,Tag
+from .models import Todo,Tag,Notification
 from .tasks import send_due_soon_email
 
 # Create your views here.
@@ -80,13 +83,14 @@ def index(request):
         if form.is_valid():
             task = form.save()
             # Send email notification for due tasks
-            notify_at = task.due_date - timedelta(days=7)
-            # If the task is due day greater than a week
-            if notify_at >= now().date():
-                notify_at = datetime.combine(notify_at, datetime.min.time())
-                send_due_soon_email(task.id, schedule=notify_at)
-            else:
-                send_due_soon_email(task.id, schedule=now() + timedelta(seconds=5))          
+            if task.due_date:
+                notify_at = task.due_date - timedelta(days=7)
+                # If the task is due day greater than a week
+                if notify_at >= now().date():
+                    notify_at = datetime.combine(notify_at, datetime.min.time())
+                    send_due_soon_email(task.id, schedule=notify_at)
+                else:
+                    send_due_soon_email(task.id, schedule=now() + timedelta(seconds=5))          
             # If the task is recurring, handle the recurrence creation logic
             is_recurring = task.is_recurring
             recurrence_interval = task.recurrence_interval
@@ -107,11 +111,14 @@ def index(request):
     # Get all tags for filtering and form
     tags = Tag.objects.all()
     
+    # Get all notifications
+    notifications = Notification.objects.filter(is_read=False).order_by('-created_at')[:10] # Limit to 10 most recent notifications
     # Context for rendering the page
     page = {
         "form" : form,
         "list" : item_list,
         "tags" : tags,
+        "notifications": notifications,
         "title" : "TODO LIST"
     }
     return render(request, 'todo/index.html', page)
@@ -122,3 +129,11 @@ def remove(request, item_id):
     item.delete()
     messages.info(request, "item removed !!!")
     return redirect('todo')
+
+@require_POST
+def ajax_mark_as_read(request):
+    notif_id = request.POST.get("id")
+    if notif_id:
+        Notification.objects.filter(id=notif_id).update(is_read=True)
+        return JsonResponse({"status":"success"})
+    return JsonResponse({"status":"error"}, status=400) 

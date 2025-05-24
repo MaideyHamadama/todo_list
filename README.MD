@@ -87,3 +87,8 @@ except Todo.DoesNotExist:
 
 *After implementation*
 ![After implementing the email notification feature](resources/img5.png)
+
+Don't forget to always run the process tasks in background to track tasks for notification. This is done using the following command :
+
+`python manage.py process_tasks`
+
