@@ -118,13 +118,6 @@
 
     </head>
     <body class="container-fluid">
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-info">
-            <strong>{{message}}</strong>
-        </div>
-        {% endfor %}
-        {% endif %}
         <div class="row align-items-center">
             <div class="col-md-9 text-center">
                 <h1><i>__TODO LIST__</i></h1>
@@ -155,35 +148,39 @@
                 </div>
             </div>
         </div>
-        <form method="GET" action="{% url 'todo' %}" class="form-inline mb-3">
-            <!-- Search Bar -->
-            <input type="text" name="search" placeholder="Search tasks" class="form-control mr-2" value="{{ request.GET.search }}">
-        
-            <!-- Filter by Priority -->
-            <select name="priority" class="form-control mr-2">
-                <option value="">All Priorities</option>
-                <option value=1 {% if request.GET.priority == "Low" %}selected{% endif %}>Low</option>
-                <option value=2 {% if request.GET.priority == "Medium" %}selected{% endif %}>Medium</option>
-                <option value=3 {% if request.GET.priority == "High" %}selected{% endif %}>High</option>
-            </select>
-        
-            <!-- Sort Options -->
-            <select name="sort" class="form-control mr-2">
-                <option value="">Sort By</option>
-                <option value="title" {% if request.GET.sort == "title" %}selected{% endif %}>Title (A-Z)</option>
-                <option value="-title" {% if request.GET.sort == "-title" %}selected{% endif %}>Title (Z-A)</option>
-                <option value="due_date" {% if request.GET.sort == "due_date" %}selected{% endif %}>Due Date (Oldest First)</option>
-                <option value="-due_date" {% if request.GET.sort == "-due_date" %}selected{% endif %}>Due Date (Newest First)</option>
-                <option value="priority" {% if request.GET.sort == "priority" %}selected{% endif %}>Priority (Low-High)</option>
-                <option value="-priority" {% if request.GET.sort == "-priority" %}selected{% endif %}>Priority (High-Low)</option>
-            </select>
-        
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary">Apply</button>
+        <div class="row">
+            <div class="col-md-12">
+                <form method="GET" action="{% url 'todo' %}" class="form-inline mb-3">
+                    <!-- Search Bar -->
+                    <input type="text" name="search" placeholder="Search tasks" class="form-control mr-2" value="{{ request.GET.search }}">
+                
+                    <!-- Filter by Priority -->
+                    <select name="priority" class="form-control mr-2">
+                        <option value="">All Priorities</option>
+                        <option value=1 {% if request.GET.priority == "Low" %}selected{% endif %}>Low</option>
+                        <option value=2 {% if request.GET.priority == "Medium" %}selected{% endif %}>Medium</option>
+                        <option value=3 {% if request.GET.priority == "High" %}selected{% endif %}>High</option>
+                    </select>
+                
+                    <!-- Sort Options -->
+                    <select name="sort" class="form-control mr-2">
+                        <option value="">Sort By</option>
+                        <option value="title" {% if request.GET.sort == "title" %}selected{% endif %}>Title (A-Z)</option>
+                        <option value="-title" {% if request.GET.sort == "-title" %}selected{% endif %}>Title (Z-A)</option>
+                        <option value="due_date" {% if request.GET.sort == "due_date" %}selected{% endif %}>Due Date (Oldest First)</option>
+                        <option value="-due_date" {% if request.GET.sort == "-due_date" %}selected{% endif %}>Due Date (Newest First)</option>
+                        <option value="priority" {% if request.GET.sort == "priority" %}selected{% endif %}>Priority (Low-High)</option>
+                        <option value="-priority" {% if request.GET.sort == "-priority" %}selected{% endif %}>Priority (High-Low)</option>
+                    </select>
+                
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary">Apply</button>
 
-            <!-- Reset filter button -->
-            <a href="{% url 'todo' %}" class="btn btn-secondary">Reset</a>
-        </form>
+                    <!-- Reset filter button -->
+                    <a href="{% url 'todo' %}" class="btn btn-secondary">Reset</a>
+                </form>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <h3>Filter by Tag:</h3>
@@ -200,6 +197,15 @@
             </div>
         </div>
         <div class="row" style="padding-top: 10px;">
+            {% if messages %}
+            <div id="alert-message" class="col-md-8">
+                {% for message in messages %}
+                <div class="alert alert-info">
+                    <strong>{{message}}</strong>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="col-md-8">
             {% for i in list %}
                 <div class="card
@@ -218,15 +224,17 @@
                     {% if i.is_recurring %}
                     <span class="recurrence-info">Repeats: {{ i.get_recurrence_interval_display }}</span>
                     {% endif %}
-                    <center><b>Details</b></center>
-                    {{i.details|safe}}
-                    <br />
+                    <br/>
                     <b>Tags : </b>
                     {% for tag in i.tags.all %}
                         <span class="label label-primary">{{ tag.name }}</span>
                         {% empty %}
                         <span>No Tags</span>
                     {% endfor %}
+                    <center><b>Details</b></center>
+                    <hr/>
+                    {{i.details|safe}}
+                    <br />
                     <br />
                     <br />
                     <form action="/del/{{i.id}}" method="POST" style=" padding-right: 4%; padding-bottom: 3%;">
@@ -265,9 +273,23 @@
                             </div>
                         {% endfor %}
                         <center>
-                            <input type="submit" class="btn btn-primary" value="submit" />
+                            <input type="submit" class="btn btn-primary" value="SUBMIT" />
                         </center>
+                        <div class="text-center" style="margin: 20px 0;">
+                            <a href="{% url 'export_tasks' 'csv' %}" class="btn btn-sm btn-outline-primary">Export CSV</a>
+                            <a href="{% url 'export_tasks' 'json' %}" class="btn btn-sm btn-outline-secondary">Export JSON</a>
+                        </div>
                     </form>
+                    <form id="import-form" method="POST" enctype="multipart/form-data" action="{% url 'import_tasks' %}" style="display: none;">
+                        {% csrf_token %}
+                        <input type="file" name="import_file" id="import-file" accept=".json,.csv" onchange="document.getElementById('import-form').submit();">
+                    </form>
+
+                    <center>
+                        <button type="button" class="btn btn-success" onclick="document.getElementById('import-file').click();">
+                            Import Tasks
+                        </button>
+                    </center>
                 </div>
             </div>
         </div>
@@ -317,6 +339,16 @@
                     });
                 });
             });
+
+            // Remove alert message after 2 seconds
+            setTimeout(function() {
+                const alert = document.getElementById('alert-message');
+                if (alert) {
+                    alert.style.opacity = 'opacity 0.5s ease-out';
+                    alert.style.opacity = 0;
+                    setTimeout( () => alert.remove(), 500); // Remove after fade out
+                }
+            }, 1000);
         </script>
     </body>
 </html>

@@ -22,5 +22,7 @@ urlpatterns = [
     ### home page ###
     path('', views.index, name='todo'),
     path('del/<str:item_id>', views.remove, name='del'),
-    path('ajax/mark_as_read/', views.ajax_mark_as_read, name='ajax_mark_as_read')
+    path('ajax/mark_as_read/', views.ajax_mark_as_read, name='ajax_mark_as_read'),
+    path('export/<str:format>/', views.export_tasks, name="export_tasks"),
+    path('import/', views.import_tasks, name="import_tasks")
 ]
