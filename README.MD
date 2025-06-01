@@ -117,3 +117,71 @@ In the index.html, we added some html components alongside with interesting boot
 ![Notification button](/resources/img7.png)
 
 ![Mark as read button](/resources/img8.png)
+
+
+### Data backup and restore
+
+Data management is important in all application in our days. In our case we implemented this management with the data import and export features. We can see below the steps for data import :
+
+![Data Import](/resources/img9.png)
+
+- The user has to click on the Import Tasks button and select either a csv or json file corresponding to our data schema.
+
+![Data Import](/resources/img10.png)
+
+The data schema to follow for the json and csv format are as follow : 
+
+```json
+[
+    {
+        "Title": "Title 5",
+        "Details": "<p>det</p>",
+        "Due Date": "2025-06-16",
+        "Priority": 3,
+        "Date": "2025-06-01 09:48:01+00:00",
+        "Tags": [
+            "Important",
+            "Planned"
+        ],
+        "Is Recurring": true,
+        "Recurrence Interval": "weekly"
+    }
+]
+```
+
+Here below is a screenshot of the csv file following the data schema:
+
+![Data Import Schema csv](/resources/img11.png)
+
+To implement these features we had to work on multiple files (views.py, urls.py and index.html) and installed a new python module called pandas.
+
+In the views.py we added the import and export view functions that handle the action of importing csv or json files and exporting data in the two known format after a click on the corresponding button. We can see more details on the following link to the code [views.py](/todo_site/todo/views.py#L143-L218)
+
+In the urls.py we added the two url links that will be used for export and import as shown below.
+
+```python
+    path('export/<str:format>/', views.export_tasks,name="export_tasks"),
+    path('import/', views.import_tasks, name="import_tasks")
+```
+
+Finally we redesigned the frontend on the index.html to add the import and export buttons at the end of the form used to add a task. Click on the following link for more details [index.html](/todo_site/todo/templates/todo/index.html#L278-L292)
+
+```html
+<!-- For import -->
+    <form id="import-form" method="POST" enctype="multipart/form-data" action="{% url 'import_tasks' %}" style="display: none;">
+        {% csrf_token %}
+        <input type="file" name="import_file" id="import-file" accept=".json,.csv" onchange="document.getElementById('import-form').submit();">
+    </form>
+
+    <center>
+        <button type="button" class="btn btn-success" onclick="document.getElementById('import-file').click();">
+            Import Tasks
+        </button>
+    </center>
+
+<!-- For export -->
+    <div class="text-center" style="margin: 20px 0;">
+        <a href="{% url 'export_tasks' 'csv' %}" class="btn btn-sm btn-outline-primary">Export CSV</a>
+        <a href="{% url 'export_tasks' 'json' %}" class="btn btn-sm btn-outline-secondary">Export JSON</a>
+    </div>
+```
